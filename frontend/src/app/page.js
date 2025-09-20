@@ -290,6 +290,18 @@ export default function Home() {
             </Card>
           ))}
         </List>
+
+        <Typography
+          variant="body2"
+          align="center"
+          sx={{
+            mt: 4,
+            color: "#888",
+            fontFamily: "monospace",
+          }}
+        >
+          Created by shubham-jamui
+        </Typography>
       </Container>
     </ThemeProvider>
   );
