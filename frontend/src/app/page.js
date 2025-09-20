@@ -95,6 +95,8 @@ const GlobalStyles = `
   }
 `;
 
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
 export default function Home() {
   const [tasks, setTasks] = useState([]);
   const [title, setTitle] = useState("");
@@ -102,7 +104,7 @@ export default function Home() {
   const [editingTitle, setEditingTitle] = useState("");
 
   const fetchTasks = async () => {
-    const res = await fetch("http://localhost:5000/tasks");
+    const res = await fetch(`${BACKEND_URL}/tasks`);
     const data = await res.json();
     setTasks(data);
   };
@@ -114,7 +116,7 @@ export default function Home() {
   const addTask = async (e) => {
     e.preventDefault();
     if (!title) return;
-    await fetch("http://localhost:5000/tasks", {
+    await fetch(`${BACKEND_URL}/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title }),
@@ -125,7 +127,7 @@ export default function Home() {
 
   const updateTask = async (id) => {
     if (!editingTitle) return;
-    await fetch(`http://localhost:5000/tasks/${id}`, {
+    await fetch(`${BACKEND_URL}/tasks/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title: editingTitle }),
@@ -136,12 +138,12 @@ export default function Home() {
   };
 
   const completeTask = async (id) => {
-    await fetch(`http://localhost:5000/tasks/${id}/complete`, { method: "PUT" });
+    await fetch(`${BACKEND_URL}/tasks/${id}/complete`, { method: "PUT" });
     fetchTasks();
   };
 
   const deleteTask = async (id) => {
-    await fetch(`http://localhost:5000/tasks/${id}`, { method: "DELETE" });
+    await fetch(`${BACKEND_URL}/tasks/${id}`, { method: "DELETE" });
     fetchTasks();
   };
 
