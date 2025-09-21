@@ -6,7 +6,6 @@ import {
   TextField,
   Button,
   List,
-  ListItem,
   ListItemText,
   IconButton,
   Card,
@@ -21,6 +20,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import CheckIcon from "@mui/icons-material/Check";
 import EditIcon from "@mui/icons-material/Edit";
 import { styled } from "@mui/system";
+import api from "../lib/api";
 
 // Starry background container
 const StarryBackground = styled("div")({
@@ -95,7 +95,7 @@ const GlobalStyles = `
   }
 `;
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+// Backend URL is now handled by the axios instance
 
 export default function Home() {
   const [tasks, setTasks] = useState([]);
@@ -104,9 +104,12 @@ export default function Home() {
   const [editingTitle, setEditingTitle] = useState("");
 
   const fetchTasks = async () => {
-    const res = await fetch(`${BACKEND_URL}/tasks`);
-    const data = await res.json();
-    setTasks(data);
+    try {
+      const response = await api.get('/tasks');
+      setTasks(response.data);
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+    }
   };
 
   useEffect(() => {
@@ -116,35 +119,43 @@ export default function Home() {
   const addTask = async (e) => {
     e.preventDefault();
     if (!title) return;
-    await fetch(`${BACKEND_URL}/tasks`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title }),
-    });
-    setTitle("");
-    fetchTasks();
+    try {
+      await api.post('/tasks', { title });
+      setTitle("");
+      fetchTasks();
+    } catch (error) {
+      console.error('Error adding task:', error);
+    }
   };
 
   const updateTask = async (id) => {
     if (!editingTitle) return;
-    await fetch(`${BACKEND_URL}/tasks/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: editingTitle }),
-    });
-    setEditingTask(null);
-    setEditingTitle("");
-    fetchTasks();
+    try {
+      await api.put(`/tasks/${id}`, { title: editingTitle });
+      setEditingTask(null);
+      setEditingTitle("");
+      fetchTasks();
+    } catch (error) {
+      console.error('Error updating task:', error);
+    }
   };
 
   const completeTask = async (id) => {
-    await fetch(`${BACKEND_URL}/tasks/${id}/complete`, { method: "PUT" });
-    fetchTasks();
+    try {
+      await api.put(`/tasks/${id}/complete`);
+      fetchTasks();
+    } catch (error) {
+      console.error('Error completing task:', error);
+    }
   };
 
   const deleteTask = async (id) => {
-    await fetch(`${BACKEND_URL}/tasks/${id}`, { method: "DELETE" });
-    fetchTasks();
+    try {
+      await api.delete(`/tasks/${id}`);
+      fetchTasks();
+    } catch (error) {
+      console.error('Error deleting task:', error);
+    }
   };
 
   // MUI dark theme
@@ -168,7 +179,7 @@ export default function Home() {
         <StarrySky />
       </StarryBackground>
       <Container maxWidth="sm" sx={{ py: 5, position: "relative" }}>
-                <Typography
+        <Typography
           variant="h4"
           align="center"
           gutterBottom
